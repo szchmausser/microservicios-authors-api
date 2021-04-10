@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Author;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\ApiResponser;
 
 class AuthorController extends Controller
 {
+    use ApiResponser;
+
     public function index(): \Illuminate\Http\JsonResponse
     {
         $authors = Author::all();
-        return response()->json(['data' => ['authors' => $authors]]);
+
+        return $this->SuccessResponse($authors);
     }
 
     public function store(Request $request): \Illuminate\Http\JsonResponse
@@ -21,12 +26,6 @@ class AuthorController extends Controller
             'name' => [
                 'required',
                 'string',
-                function ($attribute, $value, $fail) { //regla personalizada para rechazar nombres duplicados
-                    if(Author::where('name',request('name'))->count() > 0)
-                    {
-                        $fail('The '.$attribute.' has already been taken');
-                    }
-                },
             ],
             'gender' => [
                 'required',
@@ -44,30 +43,17 @@ class AuthorController extends Controller
             ],
         ];
 
-        //Validar y enviar mensajes de error manualmente si falla | https://medium.com/@rosselli00/validating-in-laravel-7e88bbe1b627
-//        $validator = Validator::make($request->all(), $rules);
-//
-//        if ($validator->fails()) {
-//            return response()->json(['data' => ['error' => $validator->errors()]]);
-//        }
-
-        //Validar y enviar mensajes de error si falla de forma automatica
         Validator::make($request->all(), $rules)->validate();
 
-        //you actually do not need to check if the validator has failed, Laravel will do that and send back all the necessary messages to the view in the $errors
-        //https://laravel.io/forum/12-11-2015-how-to-implement-laravel-request-validation
-//        $this->validate($request, $rules);
+        $author = Author::create($request->all());
 
-        $author = Author::create($request->all()); //create funciona con array
-//        $author = new Author($request->all());
-//        $author->save(); //save funciona con instancias de modelo
+        return $this->SuccessResponse($author, 'Author successfully saved',Response::HTTP_CREATED);
 
-        return response()->json(['data' => ['author' => $author, 'message' => 'Author successfully saved']], 201);
     }
 
     public function show(Author $author): \Illuminate\Http\JsonResponse
     {
-        return response()->json(['data' => ['author' => $author]]);
+        return $this->SuccessResponse($author);
     }
 
     /**
@@ -101,16 +87,9 @@ class AuthorController extends Controller
 
         Validator::make($request->all(), $rules)->validate();
 
-        //https://arievisser.com/blog/differences-between-update-and-fill-in-laravel/
-        //1er test
         $author->update($request->all()); //actualizar el registro con los datos del request
-        //2do test
-//        $author->fill($request->all()); //rellenar el registro con los datos del request
-        //3er test
-//        $author->name = 'modificado posterior'; //fill permite alterar la estructura del objeto antes de almacenarlo en bd
-//        $author->save(); //si hemos modificado el objeto, ahora necesitamos guardarlo
 
-        return response()->json(['data' => ['author' => $author, 'message' => 'Author successfully updated']], 200);
+        return $this->SuccessResponse($author, 'Author successfully updated');
     }
 
     /**
@@ -120,7 +99,7 @@ class AuthorController extends Controller
     {
         $author->delete();
 
-        return response()->json(['data' => ['author' => $author, 'message' => 'Author successfully deleted']], 200);
+        return $this->SuccessResponse($author, 'Author successfully deleted');
     }
 
 }
