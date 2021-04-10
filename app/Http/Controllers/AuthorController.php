@@ -47,7 +47,7 @@ class AuthorController extends Controller
 
         $author = Author::create($request->all());
 
-        return $this->SuccessResponse($author, 'Author successfully saved',Response::HTTP_CREATED);
+        return $this->SuccessResponse($author,Response::HTTP_CREATED);
 
     }
 
@@ -89,7 +89,7 @@ class AuthorController extends Controller
 
         $author->update($request->all()); //actualizar el registro con los datos del request
 
-        return $this->SuccessResponse($author, 'Author successfully updated');
+        return $this->SuccessResponse($author);
     }
 
     /**
@@ -99,7 +99,7 @@ class AuthorController extends Controller
     {
         $author->delete();
 
-        return $this->SuccessResponse($author, 'Author successfully deleted');
+        return $this->SuccessResponse($author);
     }
 
 }
