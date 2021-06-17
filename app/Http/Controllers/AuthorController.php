@@ -12,35 +12,23 @@ class AuthorController extends Controller
 {
     use ApiResponser;
 
-    public function index(): \Illuminate\Http\JsonResponse
+    public function index()
     {
         $authors = Author::all();
-
         return $this->SuccessResponse($authors);
     }
 
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+    public function store(Request $request)
     {
-
         $rules = [
-            'name' => [
-                'required',
-                'string',
-            ],
-            'gender' => [
-                'required',
-                'string',
+            'name' => ['required', 'string'],
+            'gender' => ['required', 'string',
                 function ($attribute, $value, $fail) { //regla personalizada para rechazar nombres duplicados
-                    if(request('gender') == 'male')
-                    {
+                    if (!in_array($value, ['male', 'female'])) {
                         $fail('Only female '.$attribute.' are allowed');
                     }
-                },
-            ],
-            'country' => [
-                'required',
-                'string',
-            ],
+                },],
+            'country' => ['required', 'string',],
         ];
 
         Validator::make($request->all(), $rules)->validate();
@@ -48,41 +36,25 @@ class AuthorController extends Controller
         $author = Author::create($request->all());
 
         return $this->SuccessResponse($author,Response::HTTP_CREATED);
-
     }
 
-    public function show(Author $author): \Illuminate\Http\JsonResponse
+    public function show(Author $author)
     {
         return $this->SuccessResponse($author);
     }
 
-    /**
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function update(Author $author, Request $request): \Illuminate\Http\JsonResponse
+    public function update(Author $author, Request $request)
     {
-
         $rules = [
-            'name' => [
-                'required',
-                'string',
-            ],
-            'gender' => [
-                'required',
-                'string',
+            'name' => ['required', 'string',],
+            'gender' => ['required', 'string',
                 function ($attribute, $value, $fail) { //regla personalizada para rechazar nombres duplicados
-
                     $options = collect(['male', 'female']);
-
-                    if(!$options->contains(request('gender'))){
+                    if (!$options->contains($value)) {
                         $fail('Only male/female '.$attribute.' are allowed');
                     }
-                },
-            ],
-            'country' => [
-                'required',
-                'string',
-            ],
+                },],
+            'country' => ['required', 'string',],
         ];
 
         Validator::make($request->all(), $rules)->validate();
@@ -92,13 +64,9 @@ class AuthorController extends Controller
         return $this->SuccessResponse($author);
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function destroy(Author $author): \Illuminate\Http\JsonResponse
+    public function destroy(Author $author)
     {
         $author->delete();
-
         return $this->SuccessResponse($author);
     }
 

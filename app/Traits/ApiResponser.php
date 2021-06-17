@@ -13,7 +13,7 @@ trait ApiResponser
 
     public function ErrorResponse($message, $code)
     {
-        return response()->json(['error' => $message, 'code' => $code], $code);
+        return response()->json(['api' => 'authors','error' => $message, 'code' => $code], $code);
     }
 
 }
